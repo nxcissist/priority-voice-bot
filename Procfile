@@ -1,0 +1,1 @@
+worker: python priority_voice_bot.py
