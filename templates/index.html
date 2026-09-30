@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PriorityVoice — Dashboard</title>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --bg-elevated: #11151d;
+    --card: #161b26;
+    --border: #232a37;
+    --border-hover: #2f3846;
+    --text: #e8edf4;
+    --text-dim: #8892a4;
+    --text-mute: #5d6678;
+    --accent: #4f8cff;
+    --accent-hover: #6ba0ff;
+    --success: #2ecc71;
+    --success-dim: #1e7a43;
+    --danger: #f04e5c;
+    --warning: #f0b429;
+    --radius: 10px;
+    --radius-sm: 7px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at 50% 0%, #141a26 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* =============== LOGIN =============== */
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow);
+  }
+  .login-logo {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), #7b5cff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 700;
+    margin-bottom: 20px;
+  }
+  .login-card h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .login-card p.sub { color: var(--text-dim); font-size: 14px; margin-bottom: 28px; }
+
+  /* =============== DASHBOARD =============== */
+  .wrap {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .logo {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #7b5cff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700;
+  }
+  .brand h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand .sub { font-size: 12px; color: var(--text-mute); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .status-badge.on {
+    background: rgba(46, 204, 113, 0.12);
+    color: var(--success);
+    border-color: rgba(46, 204, 113, 0.3);
+  }
+  .status-badge.off {
+    background: rgba(240, 78, 92, 0.1);
+    color: var(--danger);
+    border-color: rgba(240, 78, 92, 0.3);
+  }
+  .status-badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: currentColor;
+  }
+  .status-badge.on .dot {
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.5);
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(46,204,113,0); }
+    100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-hover); }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .card-head h2 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-head h2 .icon { font-size: 15px; opacity: 0.85; }
+  .card-head .desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* Master toggle */
+  .master {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .master .left { flex: 1; }
+  .master .title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .master .title .icon { margin-right: 6px; }
+  .master .hint { font-size: 13px; color: var(--text-dim); }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 56px;
+    height: 30px;
+    flex-shrink: 0;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: #2a3140;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border);
+  }
+  .slider::before {
+    content: "";
+    position: absolute;
+    height: 22px; width: 22px;
+    left: 3px; top: 3px;
+    background: #e8edf4;
+    border-radius: 50%;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .switch input:checked + .slider {
+    background: var(--success);
+    border-color: var(--success);
+  }
+  .switch input:checked + .slider::before {
+    transform: translateX(26px);
+  }
+  .switch input:focus-visible + .slider {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Inputs */
+  label.field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  input[type=text], input[type=password] {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  input[type=text]:focus, input[type=password]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+  }
+  input::placeholder { color: var(--text-mute); }
+
+  .id-input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .id-input-row input { flex: 1; font-family: ui-monospace, "SF Mono", monospace; letter-spacing: 0.02em; }
+
+  .btn {
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 11px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    width: 100%;
+    padding: 13px;
+    font-size: 14.5px;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:active { transform: scale(0.99); }
+  .btn-add {
+    background: var(--bg-elevated);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 11px 16px;
+    white-space: nowrap;
+  }
+  .btn-add:hover { background: #1d2330; border-color: var(--border-hover); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+  .btn-ghost:hover { color: var(--text); background: var(--bg-elevated); }
+
+  /* Chip list */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    min-height: 34px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px 7px 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 12.5px;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--border-hover); }
+  .chip .x {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-mute);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+  }
+  .chip .x:hover { background: rgba(240, 78, 92, 0.15); color: var(--danger); }
+  .chips .empty {
+    color: var(--text-mute);
+    font-size: 13px;
+    font-style: italic;
+    padding: 6px 0;
+  }
+
+  /* Actions row */
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 4px;
+  }
+  .actions .btn-primary { flex: 1; }
+  .logout {
+    color: var(--text-dim);
+    font-size: 13px;
+    text-decoration: none;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+  }
+  .logout:hover { color: var(--text); background: var(--bg-elevated); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 20px;
+    font-size: 13.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow);
+    z-index: 100;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast .icon { font-size: 15px; }
+
+  .error {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(240, 78, 92, 0.08);
+    border: 1px solid rgba(240, 78, 92, 0.25);
+    border-radius: var(--radius-sm);
+  }
+
+  .help {
+    font-size: 12.5px;
+    color: var(--text-mute);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .help code {
+    background: var(--bg-elevated);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  @media (max-width: 520px) {
+    body { padding: 16px 10px; align-items: flex-start; padding-top: 28px; }
+    .card { padding: 18px 18px; }
+    .brand h1 { font-size: 15px; }
+    header.top { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+{% if not logged %}
+
+  <div class="login-card">
+    <div class="login-logo">P</div>
+    <h1>PriorityVoice</h1>
+    <p class="sub">Accedi per gestire il bot.</p>
+    <form method="POST" action="/login">
+      <label class="field-label" for="pwd">Password</label>
+      <input type="password" id="pwd" name="password" placeholder="••••••••" autofocus autocomplete="current-password">
+      <div style="height:16px"></div>
+      <button type="submit" class="btn btn-primary">Accedi</button>
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    </form>
+  </div>
+
+{% else %}
+
+  <div class="wrap">
+
+    <header class="top">
+      <div class="brand">
+        <div class="logo">P</div>
+        <div>
+          <h1>PriorityVoice</h1>
+          <div class="sub">Controllo priorità vocale</div>
+        </div>
+      </div>
+      <div class="status-badge {{ 'on' if cfg.enabled else 'off' }}" id="status-badge">
+        <span class="dot"></span>
+        <span id="status-text">{{ 'ATTIVO' if cfg.enabled else 'DISATTIVATO' }}</span>
+      </div>
+    </header>
+
+    <form method="POST" action="/save" id="main-form">
+
+      <!-- MASTER TOGGLE -->
+      <div class="card">
+        <div class="master">
+          <div class="left">
+            <div class="title"><span class="icon">⚡</span>Bot attivo</div>
+            <div class="hint">
+              Quando è spento, il bot ignora tutti gli eventi vocali senza perdere la connessione a Discord.
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" name="enabled" id="enabled-toggle" {% if cfg.enabled %}checked{% endif %}>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- UTENTE PRIORITARIO -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2><span class="icon">👑</span>Utente prioritario</h2>
+            <div class="desc">L'utente che ha sempre accesso al canale vocale. Se entra, i bloccati vengono espulsi.</div>
+          </div>
+        </div>
+        <label class="field-label" for="priority">ID utente Discord</label>
+        <input type="text" id="priority" name="priority_user_id"
+               value="{{ cfg.priority_user_id }}"
+               placeholder="es. 695466927568715796"
+               inputmode="numeric"
+               pattern="[0-9]*">
+        <div class="help">
+          Attiva <code>Modalità Sviluppatore</code> su Discord → clic destro sull'utente → <code>Copia ID</code>.
+        </div>
+      </div>
+
+      <!-- UTENTI BLOCCATI -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2><span class="icon">🚫</span>Utenti bloccati</h2>
+            <div class="desc">Chi non può entrare nel canale vocale dove si trova l'utente prioritario.</div>
+          </div>
+        </div>
+
+        <label class="field-label" for="new-id">Aggiungi ID</label>
+        <div class="id-input-row">
+          <input type="text" id="new-id" placeholder="es. 1534059631956070540" inputmode="numeric" pattern="[0-9]*">
+          <button type="button" class="btn btn-add" id="add-btn">Aggiungi</button>
+        </div>
+
+        <div class="chips" id="chips"></div>
+
+        <textarea name="blocked_user_ids" id="blocked-textarea" style="display:none"></textarea>
+      </div>
+
+      <!-- AZIONI -->
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">Salva modifiche</button>
+        <a href="/logout" class="logout">Esci</a>
+      </div>
+
+    </form>
+
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="icon">✓</span>
+    <span id="toast-text">Salvato</span>
+  </div>
+
+  <script>
+    // ID iniziali dal server
+    const initialIds = [
+      {% for uid in cfg.blocked_user_ids %}"{{ uid }}"{% if not loop.last %},{% endif %}{% endfor %}
+    ];
+
+    const chipsEl = document.getElementById('chips');
+    const textarea = document.getElementById('blocked-textarea');
+    const newIdInput = document.getElementById('new-id');
+    const addBtn = document.getElementById('add-btn');
+    const form = document.getElementById('main-form');
+    const toggle = document.getElementById('enabled-toggle');
+    const statusBadge = document.getElementById('status-badge');
+    const statusText = document.getElementById('status-text');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toast-text');
+
+    let ids = initialIds.slice();
+
+    function renderChips() {
+      chipsEl.innerHTML = '';
+      if (ids.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'Nessun utente bloccato.';
+        chipsEl.appendChild(empty);
+      } else {
+        ids.forEach(id => {
+          const chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.innerHTML = `<span>${id}</span>`;
+          const x = document.createElement('button');
+          x.type = 'button';
+          x.className = 'x';
+          x.textContent = '×';
+          x.setAttribute('aria-label', 'Rimuovi ' + id);
+          x.onclick = () => {
+            ids = ids.filter(v => v !== id);
+            renderChips();
+            syncTextarea();
+          };
+          chip.appendChild(x);
+          chipsEl.appendChild(chip);
+        });
+      }
+      syncTextarea();
+    }
+
+    function syncTextarea() {
+      textarea.value = ids.join('\n');
+    }
+
+    function addId() {
+      const raw = newIdInput.value.trim();
+      if (!raw) return;
+      if (!/^\d+$/.test(raw)) {
+        showToast('ID non valido — solo cifre', true);
+        return;
+      }
+      if (ids.includes(raw)) {
+        showToast('ID già presente', true);
+        return;
+      }
+      ids.push(raw);
+      newIdInput.value = '';
+      renderChips();
+      newIdInput.focus();
+    }
+
+    addBtn.onclick = addId;
+    newIdInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addId(); }
+    });
+
+    // Toggle master — aggiorna badge live
+    toggle.addEventListener('change', () => {
+      if (toggle.checked) {
+        statusBadge.classList.remove('off');
+        statusBadge.classList.add('on');
+        statusText.textContent = 'ATTIVO';
+      } else {
+        statusBadge.classList.remove('on');
+        statusBadge.classList.add('off');
+        statusText.textContent = 'DISATTIVATO';
+      }
+    });
+
+    // Toast helper
+    function showToast(msg, isError) {
+      toastText.textContent = msg;
+      toast.querySelector('.icon').textContent = isError ? '⚠' : '✓';
+      toast.querySelector('.icon').style.color = isError ? 'var(--danger)' : 'var(--success)';
+      toast.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // Feedback visivo al salvataggio
+    form.addEventListener('submit', () => {
+      showToast('Salvataggio in corso…');
+    });
+
+    // Init
+    renderChips();
+  </script>
+
+{% endif %}
+
+</body>
+</html>
